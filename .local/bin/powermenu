@@ -1,0 +1,118 @@
+#!/bin/bash
+# shellcheck disable=SC2199
+# shellcheck disable=SC2086
+# shellcheck source=/dev/null
+#
+# Copyright (C) 2024-02 pyranix <pyranix@proton.me>
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+SCRIPT_NAME="powermenu"
+
+# Power menu options
+options=(" Poweroff" " Reboot" " Sleep" " Hibernate" " Log Out")
+
+# Function to check the init system
+detect_init_system() {
+  if command -v systemctl &> /dev/null; then
+    init_system="systemctl"
+  elif command -v loginctl &> /dev/null; then
+    init_system="loginctl"
+  else
+    dunstify -u low "Unable to detect init system. Exiting."
+    exit 1
+  fi
+}
+
+# Determine init system
+detect_init_system
+
+# Set commands based on init system
+case $init_system in
+  "systemctl")
+    power_command="systemctl poweroff"
+    reboot_command="systemctl reboot"
+    sleep_command="systemctl suspend"
+    hibernate_command="systemctl hibernate"
+    logout_command="systemctl exit"
+    ;;
+  "loginctl")
+    power_command="loginctl poweroff"
+    reboot_command="loginctl reboot"
+    sleep_command="loginctl suspend"
+    hibernate_command="loginctl hibernate"
+    logout_command="loginctl terminate-session"
+    ;;
+  *)
+    dunstify -u low "Unsupported init system. Exiting."
+    exit 1
+    ;;
+esac
+
+# Function to confirm the action
+confirm_option() {
+  confirm=$(echo -e "Yes\nNo" | rofi -dmenu -i -p "Are you sure?" -columns 1 -width 10)
+  [[ "$confirm" == "Yes" ]]
+}
+
+# Main script
+
+selected_option=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "$SCRIPT_NAME" -columns 1 -width 20) || exit 1
+
+case $selected_option in
+    " Poweroff")
+        if confirm_option; then
+            dunstify -i "$HOME/.notify/images/power-button.png" "Powering off..."
+            $power_command
+        else
+            dunstify -i "$HOME/.notify/images/multiply.png" "Power off canceled"
+        fi
+        ;;
+    " Reboot")
+        if confirm_option; then
+            dunstify -i "$HOME/.notify/images/refresh.png" "Rebooting..."
+            $reboot_command
+        else
+            dunstify -i "$HOME/.notify/images/multiply.png" "Reboot canceled"
+        fi
+        ;;
+    " Sleep")
+        if confirm_option; then
+            dunstify -i "$HOME/.notify/images/sleep.png" "Putting system to sleep..."
+            $sleep_command
+        else
+            dunstify -i "$HOME/.notify/images/multiply.png" "Sleep canceled"
+        fi
+        ;;
+    " Hibernate")
+        if confirm_option; then
+            dunstify -i "$HOME/.notify/images/suspended.png" "Hibernating..."
+            $hibernate_command
+        else
+            dunstify -i "$HOME/.notify/images/multiply.png" "Hibernation canceled"
+        fi
+        ;;
+    " Log Out")
+        if confirm_option; then
+            dunstify -i "$HOME/.notify/images/arrow.png" "Logging out..."
+            $logout_command
+        else
+            dunstify -i "$HOME/.notify/images/multiply.png" "Log out canceled"
+        fi
+        ;;
+    *)
+        dunstify -u low "Invalid option"
+        ;;
+esac
+
+exit 0

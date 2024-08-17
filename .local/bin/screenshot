@@ -1,0 +1,107 @@
+#!/bin/bash
+# shellcheck disable=SC2199
+# shellcheck disable=SC2086
+# shellcheck source=/dev/null
+#
+# Copyright (C) 2024-02 pyranix <pyranix@proton.me>
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Configuration
+readonly NOTIFY_ICON=""   # Default notification icon
+readonly TIMER_ICON=""    # Timer icon for notifications
+readonly PICTURES_DIR="${XDG_PICTURES_DIR:-$HOME/Pictures}/Screenshots"
+readonly TEMP_DIR=$(mktemp -d)
+
+# Function to display a notification with image attachment
+notify_with_image() {
+  local title="$1"
+  local message="$2"
+  local image_path="$3"
+
+  if [[ ! -f "$image_path" ]]; then
+    echo "Error: Image file not found: $image_path"
+    return 1
+  fi
+
+  dunstify --replace=1 -u low -i "$image_path" "$title" "$message"
+}
+
+# Countdown function with notifications
+countdown() {
+  local duration=$1
+  while (( duration > 0 )); do
+    dunstify --replace=1 -u low -i "$TIMER_ICON" "Taking shot in:" "$duration"
+    sleep 1
+    (( duration-- ))
+  done
+}
+
+# Take a screenshot and process it
+take_and_process_screenshot() {
+  local temp_file="$TEMP_DIR/temp.png"
+  local file="$PICTURES_DIR/Screenshot_$(date +%Y-%m-%d-%H-%M-%S).png"
+  local option="$1"
+
+  case $option in
+    "full")
+      sleep 0.5
+      maim -u -f png "$temp_file"
+      ;;
+    "window")
+      maim -i "$(xdotool getactivewindow)" "$temp_file"
+      ;;
+    "area")
+      maim -s "$temp_file"
+      ;;
+    *)
+      return 1
+      ;;
+  esac
+
+  convert "$temp_file" \( +clone -background black -shadow 25x30+0+0 \) +swap -background "$COLOR" -layers merge "$file"
+  xclip -selection clipboard -t image/png -i "$file"
+  notify_with_image "Screenshot Taken" "Image copied to clipboard" "$file"
+
+  rm "$temp_file"
+}
+
+# Main
+create_directory() {
+  [[ -d "$1" ]] || mkdir -p "$1" || { echo "Error creating directory: $1"; exit 1; }
+}
+
+create_directory "$PICTURES_DIR"
+
+if [[ -f "$HOME/.envvars" ]]; then
+  source "$HOME/.envvars"
+fi
+
+COLOR="${COLOR:-#FFFFFF}"  # Default color if not set in .envvars
+
+selected_option=$(printf '%s\n' "full" "5" "10" "window" "area" | rofi -dmenu -i -p "Screenshot" -columns 1 -width 30) || exit 1
+
+case $selected_option in
+  "full" | "window" | "area")
+    take_and_process_screenshot "$selected_option"
+    ;;
+  "5" | "10")
+    countdown "$selected_option"
+    take_and_process_screenshot "full"
+    ;;
+  *)
+    exit 1
+    ;;
+esac
+
+exit 0

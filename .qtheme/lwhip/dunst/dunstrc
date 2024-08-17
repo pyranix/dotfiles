@@ -1,0 +1,58 @@
+[global]
+width = 250
+height = 200
+notification_limit = 5
+origin = bottom-right
+offset = 20x20
+progress_bar = true
+progress_bar_corner_radius = 5
+monitor = 0
+follow = mouse
+indicate_hidden = yes
+shrink = yes
+transparency = 0
+font = JetBrains Mono Bold 10
+markup = full
+format = "<b>%s</b>\n%b"
+alignment = left
+word_wrap = yes
+ellipsize = middle
+ignore_newline = no
+stack_duplicates = true
+hide_duplicate_count = false
+show_indicators = yes
+icon_position = left
+max_icon_size = 32
+icon_path = /usr/share/icons/Tela-black/24/apps/scalable:/usr/share/icons/Tela-black/24/devices/scalable/
+corner_radius = 8
+title = dunst
+class = dunst
+
+[urgency_low]
+    # IMPORTANT: colors have to be defined in quotation marks.
+    # Otherwise the "#" and following would be interpreted as a comment.
+    background = "#161616"
+    foreground = "#f2f4f8"
+    frame_color = "#161616"
+    highlight = "#BDC2BE"
+    timeout = 10
+    # Icon for notifications with low urgency, uncomment to enable
+    icon = ~/.config/dunst/images/notification.png
+
+[urgency_normal]
+    background = "#161616"
+    foreground = "#f2f4f8"
+    frame_color = "#161616"
+    highlight = "#BDC2BE"
+    timeout = 10
+    # Icon for notifications with normal urgency, uncomment to enable
+    icon = ~/.config/dunst/images/notification.png
+
+[urgency_critical]
+    background = "#161616"
+    foreground = "#f2f4f8"
+    frame_color = "#161616"
+    highlight = "#BDC2BE"
+    timeout = 0
+    # Icon for notifications with critical urgency, uncomment to enable
+    icon = ~/.config/dunst/images/notification.png
