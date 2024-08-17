@@ -1,8 +1,21 @@
 #!/bin/bash
-
 # Script to setup system configurations and install packages based on Linux distribution
-
 set -euo pipefail
+
+# Display ASCII art with centered text
+term_width=$(tput cols)
+text="       __      __  _____ __         "
+printf "%*s\n" $(((${#text} + term_width) / 2)) "$text"
+text="  ____/ /___  / /_/ __(_) /__  _____ "
+printf "%*s\n" $(((${#text} + term_width) / 2)) "$text"
+text=" / __  / __ \/ __/ /_/ / / _ \/ ___/ "
+printf "%*s\n" $(((${#text} + term_width) / 2)) "$text"
+text="/ /_/ / /_/ / /_/ __/ / /  __(__  )  "
+printf "%*s\n" $(((${#text} + term_width) / 2)) "$text"
+text="\__,_/\____/\__/_/ /_/_/\___/____/   "
+printf "%*s\n" $(((${#text} + term_width) / 2)) "$text"
+text=" by @pyranix "
+printf "%*s\n" $(((${#text} + term_width) / 2)) "$text"
 
 # Configuration
 readonly GTK2_SYSTEM_WIDE="/etc/gtk-2.0"
