@@ -1,0 +1,52 @@
+#!/bin/bash
+
+# Function to handle multi-tapping
+multi_tap() {
+    local x=$1
+    local y=$2
+    local interval=$3
+    local taps=$4
+
+    while true; do
+        for ((i=0; i<taps; i++)); do
+            # Generate a small random offset around the original point for each tap
+            offset_x=$((RANDOM % 10 - 5))
+            offset_y=$((RANDOM % 10 - 5))
+            target_x=$((x + offset_x))
+            target_y=$((y + offset_y))
+
+            # Simulate the tap at the calculated position
+            if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+                xdotool mousemove $target_x $target_y click 1 &
+            elif [[ "$OSTYPE" == "darwin"* ]]; then
+                cliclick m:$target_x,$target_y c:. &
+            fi
+        done
+        sleep $interval
+    done
+}
+
+# Main script logic
+echo "Move your mouse to the desired location and press Enter."
+read -p "Press Enter to record the position."
+
+# Get the current mouse position
+if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    eval $(xdotool getmouselocation --shell)
+    x=$X
+    y=$Y
+elif [[ "$OSTYPE" == "darwin"* ]]; then
+    position=$(cliclick p | sed -e 's/.*x://;s/, y:/ /')
+    x=$(echo $position | cut -d' ' -f1)
+    y=$(echo $position | cut -d' ' -f2)
+fi
+
+# Get the interval between taps
+read -p "Enter the time interval between taps (in seconds): " interval
+
+# Get the number of simultaneous taps
+read -p "Enter the number of simultaneous taps (1-100): " taps
+
+# Start the multi-tapping
+echo "Multi-tapping at ($x, $y) with $taps taps and an interval of $interval seconds. Press Ctrl+C to stop."
+multi_tap $x $y $interval $taps
