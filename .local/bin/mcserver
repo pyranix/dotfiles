@@ -1,0 +1,61 @@
+#!/bin/bash
+
+# Display system requirements
+echo "=========================================="
+echo "          System Requirements"
+echo "=========================================="
+echo "CPU: Intel Core i3 3210 | AMD A8 7600 APU or equivalent"
+echo "RAM: 4 GB RAM"
+echo "HDD: 180 MB to 1 GB available space"
+echo "Network: Broadband Internet connection"
+echo "OS: The Linux version of Bedrock Dedicated Server requires Ubuntu 20.04 (LTS version) or later. Other distributions are not supported."
+echo "=========================================="
+echo
+
+# Default server directory
+DEFAULT_SERVER_DIR="$HOME/.local/minecraft_bedrock_server"
+
+# Ask for server directory location or use default
+read -p "Enter the directory where the Bedrock server is located (or press Enter to use the default [$DEFAULT_SERVER_DIR]): " SERVER_DIR
+SERVER_DIR=${SERVER_DIR:-$DEFAULT_SERVER_DIR}
+
+# Check if the directory exists
+if [ ! -d "$SERVER_DIR" ]; then
+    echo "Directory $SERVER_DIR does not exist. Creating it..."
+    mkdir -p "$SERVER_DIR"
+    echo "Directory created."
+fi
+
+# Configuration variables
+SERVER_PORT=19132
+
+# Function to start the Bedrock server
+start_server() {
+    echo "Starting Minecraft Bedrock server on port $SERVER_PORT..."
+    LD_LIBRARY_PATH=$SERVER_DIR $SERVER_DIR/bedrock_server
+}
+
+# Function to check if server files exist
+check_files() {
+    if [ ! -f "$SERVER_DIR/bedrock_server" ]; then
+        echo "Error: Bedrock server executable not found in $SERVER_DIR!"
+        exit 1
+    fi
+}
+
+# Function to display information for sharing the server
+display_server_info() {
+    PUBLIC_IP=$(curl -s ifconfig.me)
+    echo "Server is running on port $SERVER_PORT."
+    echo "To allow others to join, they can connect using the following IP address: $PUBLIC_IP:$SERVER_PORT"
+    echo "Make sure port $SERVER_PORT is forwarded on your router and allowed through your firewall."
+}
+
+# Check if server files exist
+check_files
+
+# Start the server
+start_server
+
+# Display server information for sharing
+display_server_info
