@@ -1,0 +1,31 @@
+#!/bin/bash
+
+# Function to convert UTC/GMT to WIB/WITA/WIT
+convert_timezone() {
+    # Input time in UTC/GMT
+    input_time="$1"
+    
+    # Convert to WIB (UTC+7)
+    wib=$(date -d "$input_time UTC +7 hours" +"%I:%M %p (%d-%m-%Y)")
+    
+    # Convert to WITA (UTC+8)
+    wita=$(date -d "$input_time UTC +8 hours" +"%I:%M %p (%d-%m-%Y)")
+    
+    # Convert to WIT (UTC+9)
+    wit=$(date -d "$input_time UTC +9 hours" +"%I:%M %p (%d-%m-%Y)")
+    
+    echo "Input time (UTC): $input_time"
+    echo "WIB  (UTC+7): $wib"
+    echo "WITA (UTC+8): $wita"
+    echo "WIT  (UTC+9): $wit"
+}
+
+# Check if time is passed as argument
+if [ -z "$1" ]; then
+    echo "Usage: ./ctime <time_in_UTC>"
+    echo "Example: ./ctime '2024-08-20 15:00'"
+    exit 1
+fi
+
+# Call the function with input time
+convert_timezone "$1"
