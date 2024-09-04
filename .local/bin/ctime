@@ -6,13 +6,13 @@ convert_timezone() {
     input_time="$1"
     
     # Convert to WIB (UTC+7)
-    wib=$(date -d "$input_time UTC +7 hours" +"%I:%M %p (%d-%m-%Y)")
+    wib=$(date -u -d "$input_time" +"%I:%M %p (%d-%m-%Y)" -d "+7 hours")
     
     # Convert to WITA (UTC+8)
-    wita=$(date -d "$input_time UTC +8 hours" +"%I:%M %p (%d-%m-%Y)")
+    wita=$(date -u -d "$input_time" +"%I:%M %p (%d-%m-%Y)" -d "+8 hours")
     
     # Convert to WIT (UTC+9)
-    wit=$(date -d "$input_time UTC +9 hours" +"%I:%M %p (%d-%m-%Y)")
+    wit=$(date -u -d "$input_time" +"%I:%M %p (%d-%m-%Y)" -d "+9 hours")
     
     echo "Input time (UTC): $input_time"
     echo "WIB  (UTC+7): $wib"
